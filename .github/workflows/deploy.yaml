@@ -74,4 +74,4 @@ jobs:
         DOCKER_IMAGE: ${{ needs.build.outputs.image }}
         TF_WORKSPACE: dev
       run:  |
-        terraform destroy -auto-approve
+        terraform apply -auto-approve
