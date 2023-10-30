@@ -34,7 +34,7 @@ hostPort=3000
 }
 
 resource "aws_iam_policy" "ecr_policy" {
-  name        = "PullImageFromECR"
+  name        = "PullImagesFromECR"
   description = "For ECS tasks to pull image from ECR"
   policy = jsonencode({
     "Version": "2012-10-17",
