@@ -3,7 +3,7 @@ const app = express();
 const port = 3000; // You can change the port to any port you prefer
 
 app.get('/', (req, res) => {
-  res.send('Hello, 1234');
+  res.send('Hello, world');
 });
 
 app.listen(port, () => {
