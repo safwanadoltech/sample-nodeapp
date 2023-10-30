@@ -1,0 +1,77 @@
+name: deploy-to-server
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  build:
+    outputs:
+      image: ${{ steps.docker_image.outputs.image }}
+    runs-on: ubuntu-latest
+    steps:
+    - 
+      name: Perform checkout
+      uses: actions/checkout@v2
+    - 
+      name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+        mask-aws-account-id: 'no'
+    - 
+      id: login-ecr
+      name: Login to ECR
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - 
+      id: deploy_docker
+      name: Deploy docker container to AWS
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: "my-ecr-repo"                                                           # your ecr repostiory name
+        IMAGE_TAG: "latest"
+      run: |
+        docker build . -t "676213613849.dkr.ecr.us-east-1.amazonaws.com/my-ecr-repo:latest"          # make sure to update with your ecr repository url
+        docker push "676213613849.dkr.ecr.us-east-1.amazonaws.com/my-ecr-repo:latest"
+    - 
+      id: docker_image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: my-ecr-repo                                                             # your ecr repostiory name
+        IMAGE_TAG: latest
+      run: echo "::set-output name=image::${ECR_REGISTRY}/${ECR_REPOSITORY}:latest"
+      
+  deploy:
+    name: Deploy to dev
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - 
+      uses: actions/checkout@v2
+    - 
+      uses: hashicorp/setup-terraform@v1
+    - 
+      name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-2
+    - 
+      name: Init terraform
+      working-directory: terraform-files
+      run: terraform init
+        
+    -
+      name: Run terraform apply
+      working-directory: tf
+      env: 
+        DOCKER_IMAGE: ${{ needs.build.outputs.image }}
+        TF_WORKSPACE: dev
+      run:  |
+        terraform apply -auto-approve
