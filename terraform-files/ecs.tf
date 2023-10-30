@@ -5,7 +5,7 @@ provider "aws" {
 resource "aws_iam_policy_attachment" "attach_policy_example" {
   name       = "PullImageFromECR"
   roles      = [aws_iam_role.ecs_execution_role.name]
-  policy_arn = [aws_iam_policy.ecr_policy.arn]
+  policy_arn = aws_iam_policy.ecr_policy.arn
 }
 
 resource "aws_ecs_cluster" "my_cluster" {
