@@ -2,6 +2,12 @@ provider "aws" {
   region = "us-east-1"
 }
 
+resource "aws_iam_policy_attachment" "attach_policy_example" {
+  name       = "PullImageFromECR"
+  roles      = [aws_iam_role.ecs_execution_role.name]
+  policy_arn = [aws_iam_policy.ecr_policy.arn]
+}
+
 resource "aws_ecs_cluster" "my_cluster" {
 name="my-ecs-cluster"
 }
@@ -27,6 +33,35 @@ hostPort=3000
 ])
 }
 
+resource "aws_iam_policy" "ecr_policy" {
+  name        = "PullImageFromECR"
+  description = "For ECS tasks to pull image from ECR"
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ecr:GetAuthorizationToken",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:GetRepositoryPolicy",
+                "ecr:DescribeRepositories",
+                "ecr:ListImages",
+                "ecr:DescribeImages",
+                "ecr:BatchGetImage",
+                "ecr:GetLifecyclePolicy",
+                "ecr:GetLifecyclePolicyPreview",
+                "ecr:ListTagsForResource",
+                "ecr:DescribeImageScanFindings"
+            ],
+            "Resource": "*"
+        }
+    ]
+})
+}
+  
+  
 resource "aws_iam_role" "ecs_execution_role" {
 name= "ecs_execution_role"
   assume_role_policy = jsonencode({
