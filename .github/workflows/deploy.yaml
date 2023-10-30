@@ -69,7 +69,7 @@ jobs:
         
     -
       name: Run terraform apply
-      working-directory: tf
+      working-directory: terraform-files
       env: 
         DOCKER_IMAGE: ${{ needs.build.outputs.image }}
         TF_WORKSPACE: dev
