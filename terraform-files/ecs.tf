@@ -12,7 +12,7 @@ network_mode="awsvpc"
 requires_compatibilities=["FARGATE"]
 cpu="256"
 memory="512"
-execution_role_arn=aws_iam_role.ecr_role.arn
+execution_role_arn=aws_iam_role.ecs_execution_role.arn
 container_definitions= jsonencode([
     {
      name="my-app-container"
@@ -27,8 +27,8 @@ hostPort=3000
 ])
 }
 
-resource "aws_iam_role" "ecr_role" {
-  name = "ECRImagePullRole"
+resource "aws_iam_role" "ecs_execution_role" {
+name= "ecs_execution_role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -36,39 +36,11 @@ resource "aws_iam_role" "ecr_role" {
         Action = "sts:AssumeRole",
         Effect = "Allow",
         Principal = {
-          Service = "ec2.amazonaws.com"
+          Service = "ecs-tasks.amazonaws.com"
         }
       }
     ]
   })
-}
-
-resource "aws_iam_policy" "ecr_policy" {
-  name        = "ECRImagePullPolicy"
-  description = "Policy to allow pulling images from ECR"
-
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Action = [
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:GetRepositoryPolicy",
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:GetManifest",
-          "ecr:GetObject",
-          "ecr:BatchGetImage",
-        ],
-        Effect   = "Allow",
-        Resource = "*"
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "ecr_role_policy_attachment" {
-  policy_arn = aws_iam_policy.ecr_policy.arn
-  role       = aws_iam_role.ecr_role.name
 }
 
 resource "aws_ecs_service" "my_service"{
