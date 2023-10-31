@@ -23,7 +23,7 @@ execution_role_arn=aws_iam_role.ecs_execution_role.arn
 container_definitions= jsonencode([
     {
      name="my-app-container"
-image="676213613849.dkr.ecr.us-east-1.amazonaws.com/my-ecr-repo:latest" # your ecr repository URI found in aws management console
+image="676213613849.dkr.ecr.us-east-1.amazonaws.com/my-ecr-repo:latest@${data.aws_ecr_image.my-ecr-repo.image_digest}" # your ecr repository URI found in aws management console
 portMappings= [
 {
 containerPort=3000
@@ -121,9 +121,9 @@ target_group_arn=aws_lb_target_group.my_target_group.arn
 }
 }
 
-#data "aws_ecr_image" "my-ecr-repo" {
-#  repository_name = "my-ecr-repo"
-#  image_tag = "latest"
-#
-#}@${data.aws_ecr_image.my-ecr-repo.image_digest}
+data "aws_ecr_image" "my-ecr-repo" {
+  repository_name = "my-ecr-repo"
+  image_tag = "latest"
+
+}
 
