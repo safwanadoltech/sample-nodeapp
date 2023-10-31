@@ -78,11 +78,11 @@ name="my-app-service"
 cluster= aws_ecs_cluster.my_cluster.id
 task_definition= aws_ecs_task_definition.my_task.arn
 desired_count = 1
-security_groups=aws_security_group.ecs_task.arn
 launch_type= "FARGATE"
 
   
 network_configuration {
+security_groups=aws_security_group.ecs_task.arn
 subnets= [tolist(module.vpc.public_subnets)[0],tolist(module.vpc.public_subnets)[1]]
 assign_public_ip = true
 }
