@@ -97,6 +97,7 @@ depends_on= [aws_ecs_task_definition.my_task]
 resource "aws_lb" "my_lb" {
 name="my-app-lb"
 internal = false
+security_groups = [aws_security_group.ecs_tasks.id]
 load_balancer_type="application"
 subnets= [tolist(module.vpc.public_subnets)[0],tolist(module.vpc.public_subnets)[1]]
 }
@@ -112,8 +113,8 @@ vpc_id=module.vpc.vpc_id
 
 resource "aws_lb_listener" "my_listener" {
 load_balancer_arn=aws_lb.my_lb.arn
-port=80
-protocol="HTTP"
+port=443
+protocol="HTTPS"
 default_action {
 type="forward"
 target_group_arn=aws_lb_target_group.my_target_group.arn
