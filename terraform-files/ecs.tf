@@ -82,7 +82,7 @@ launch_type= "FARGATE"
 
   
 network_configuration {
-security_groups=aws_security_group.ecs_tasks.arn
+security_groups=[aws_security_group.ecs_tasks.id]
 subnets= [tolist(module.vpc.public_subnets)[0],tolist(module.vpc.public_subnets)[1]]
 assign_public_ip = true
 }
