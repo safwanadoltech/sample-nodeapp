@@ -111,7 +111,7 @@ vpc_id=module.vpc.vpc_id
 
 resource "aws_lb_listener" "my_listener" {
 load_balancer_arn=aws_lb.my_lb.arn
-port=3000
+port=80
 protocol="HTTP"
 default_action {
 type="forward"
